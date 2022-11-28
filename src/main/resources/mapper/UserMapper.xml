@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.chat.mapper.UserMapper">
+
+    <select id="queryUser" resultType="com.example.chat.pojo.User">
+        select id,
+               username,
+               passwd,
+               email,
+               sex,
+               create_time,
+               avatar,
+               state
+        from user
+        where username = #{username}
+    </select>
+
+
+    <select id="queryUserById" resultType="User">
+        select id,
+               username,
+               email,
+               sex,
+               create_time,
+               avatar
+        from user
+        where id=#{id}
+    </select>
+
+
+    <insert id="insertUser">
+        insert into user(username, email, sex, avatar, passwd)
+        values (#{username}, #{email}, #{sex}, #{avatar}, #{passwd})
+    </insert>
+
+
+    <select id="queryEmail" resultType="User">
+        select id
+        from user
+        where email = #{email}
+    </select>
+
+    <update id="updateState">
+        update user
+        set state=1
+        where username = #{username}
+    </update>
+
+
+    <update id="updateUser">
+        update user
+        <set>
+            <if test="email!=null and email!=''">
+                email=#{email},
+            </if>
+            <if test="sex!=null">
+                sex=#{sex},
+            </if>
+            <if test="passwd!=null and passwd!=''">
+                passwd=#{passwd},
+            </if>
+            id=#{id}
+        </set>
+        where id=#{id}
+    </update>
+
+    <update id="updateImg">
+        update user
+        set avatar=#{avatar}
+        where id = #{id}
+    </update>
+
+    <select id="queryUserByEmail" resultType="User">
+        select id,username,email from user where email = #{email}
+    </select>
+</mapper>

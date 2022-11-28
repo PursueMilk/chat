@@ -1,0 +1,25 @@
+package com.example.chat.pojo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class Comment implements Serializable {
+
+    private int id;
+    private int userId;
+    private int entityType; //被评论实体的类型  1-帖子  2-评论
+    private int entityId;
+    private int targetId;
+    private String content;
+    private int status;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+    private long likeCount;
+    private int likeStatus;
+    //便于前端数据交互
+    private int postId;//冗余属性，方便通知而已
+}
