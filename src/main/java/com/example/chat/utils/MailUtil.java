@@ -21,7 +21,7 @@ public class MailUtil {
     @Value("${server.port}")
     private String port;
 
-    private static final String subject="校园论坛";
+    private static final String subject = "校园论坛";
 
     public void sendMail(String from, String to, String content) throws MessagingException {
         MimeMessage mimeMessage = sender.createMimeMessage();
@@ -34,12 +34,21 @@ public class MailUtil {
         sender.send(mimeMessage);
     }
 
-    public void mailRegister(String from,String to,String code,String username) throws MessagingException {
-        String httpUrl=ImgUtil.getHttpUrl()+port+"/user/activation";
-        String content="您已注册校园社区，快来点击连接激活吧！\n" +
-                "<a href='"+httpUrl+"?code="+code+"&username="+username+"'>校园社区</a>\n" +
-                "如果不是您注册，请不要点击激活连接";
-        log.info("邮箱内容{}",content);
-/*        sendMail(from,to,content);*/
+
+    //TODO 修改页面
+    public void mailRegister(String from, String to, String code, String account) throws MessagingException {
+        String httpUrl = ImgUtil.getHttpUrl() + port + "/user/activation";
+        String content = "您已注册校园社区，快来点击连接激活吧！\n" +
+                httpUrl + "?code=" + code + "&account=" + account +
+                "\n如果不是您注册，请不要点击激活连接";
+        log.info("邮箱内容{}", content);
+         sendMail(from,to,content);
+    }
+
+
+    public void mailUpdatePasswd(String from, String to, String passwd, String account) throws MessagingException {
+        String content = "尊敬的 " + account + " , 您的新密码是：" + passwd;
+        log.info("新密码：", passwd);
+        sendMail(from, to, content);
     }
 }

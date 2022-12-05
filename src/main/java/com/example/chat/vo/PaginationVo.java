@@ -14,7 +14,6 @@ public class PaginationVo<T> implements Serializable {
     private int currentPage;
     private int pageSize;
 
-
     //无用
     private int letterUnreadCount;
     private int noticeUnreadCount;

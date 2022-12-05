@@ -8,30 +8,30 @@ import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static com.example.chat.utils.RedisKeyUtil.PREFIX_USER_TOKEN;
+import static com.example.chat.utils.RedisKeyUtil.getUserTokenKey;
 
 @Controller
 public class BaseController {
 
     @Autowired
-    private HttpServletRequest request;
+    protected HttpServletRequest request;
 
     @Autowired
     protected RedisUtil redisUtil;
 
 
-    public int getUserId() {
+    public Integer getUserId() {
         return getUserVo().getId();
     }
 
     public UserVo getUserVo(){
-        String uuid = request.getHeader("TOKEN");
-        return redisUtil.getUserVo(PREFIX_USER_TOKEN+uuid);
+        String token = request.getHeader("TOKEN");
+        return redisUtil.getUserVo(getUserTokenKey(token));
     }
 
     public boolean isLogin() {
         String token = request.getHeader("TOKEN");
-        return BooleanUtil.isTrue(redisUtil.existKey(token));
+        return BooleanUtil.isTrue(redisUtil.existKey(getUserTokenKey(token)));
     }
 
 }

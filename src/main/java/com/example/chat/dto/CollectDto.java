@@ -1,13 +1,17 @@
 package com.example.chat.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 
-//TODO 简化
+@ApiModel("收藏类")
 @Data
 public class CollectDto {
 
-    private int entityId;//被收藏的文章ID
-    private int entityUserId; //被收藏的文章作者ID
+    @ApiModelProperty("被收藏的文章ID")
+    private int entityId;
 
+/*    @ApiModelProperty("被收藏的文章作者的ID")
+    private int entityUserId;*/
 }

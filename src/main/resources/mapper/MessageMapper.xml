@@ -120,7 +120,7 @@
         <include refid="selectFields"></include>
         from message
         where from_id = 1
-        and to_id = #{userId}
+        and to_id = #{id}
         and conversation_id = #{topic}
         order by create_time desc
         limit #{offset}, #{limit}

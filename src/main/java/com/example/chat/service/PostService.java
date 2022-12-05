@@ -8,7 +8,7 @@ import com.example.chat.vo.PostVo;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PostService {
-    Result publish(Post post,Integer id);
+    Result publish(Post post);
 
     PaginationVo<PostVo> posts(int currentPage, int listMode);
 
@@ -21,4 +21,6 @@ public interface PostService {
     Post getPostById(Integer targetId);
 
     PaginationVo<PostVo> listByUserId(int currentPage, int uid);
+
+    Result search(String message,int currentPage);
 }

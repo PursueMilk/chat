@@ -8,6 +8,8 @@ import com.example.chat.pojo.Result;
 import com.example.chat.pojo.User;
 import com.example.chat.service.FollowService;
 import com.example.chat.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +19,7 @@ import java.util.Map;
 
 import static com.example.chat.utils.ConstantUtil.TOPIC_FOLLOW;
 
-
+@Api(tags = "关注接口")
 @RestController
 public class FollowController extends BaseController{
 
@@ -28,7 +30,7 @@ public class FollowController extends BaseController{
     @Autowired
     private EventHandler eventHandler;
 
-    //关注
+    @ApiOperation("添加关注")
     @PostMapping(path = "/follow")
     public Result follow(@RequestBody FollowDto followDto) {
         User user = userService.getUserById(getUserId());
@@ -49,28 +51,29 @@ public class FollowController extends BaseController{
         //用线程池去发送事件
         eventHandler.handleTask(event);
         // 返回粉丝数量
-        long followerCount = followService.getFollowerCount(entityId);
+        long followerCount = followService.getFansCount(entityId);
         Map<String,Object> map = new HashMap<>();
         map.put("followerCount", followerCount);
         map.put("hasFollowed", true);
         return Result.success().setData(map);
     }
 
-    //取消关注
+
+    @ApiOperation("取消关注")
     @PostMapping(path = "/unfollow")
     public Result unfollow(@RequestBody FollowDto followDto) {
         User user = userService.getUserById(getUserId());
         int entityId = followDto.getEntityId();
         followService.unfollow(user.getId(), entityId);
         // 粉丝数量
-        long followerCount = followService.getFollowerCount(entityId);
+        long followerCount = followService.getFansCount(entityId);
         Map<String,Object> map = new HashMap<>();
         map.put("followerCount", followerCount);
         map.put("hasFollowed", false);
         return  Result.success().setData(map);
     }
 
-    //查询用户关注的人
+    @ApiOperation("个人关注的用户")
     @TokenPass
     @GetMapping(path = "/followees/{userId}")
     public Result getFollowees(@PathVariable("userId") int userId, @RequestParam(defaultValue = "1") int currentPage) {
@@ -95,24 +98,23 @@ public class FollowController extends BaseController{
         return  Result.success().setData(map);
     }
 
-    //查询用户的粉丝
+    @ApiOperation("查看用户的粉丝")
     @TokenPass
-    @GetMapping(path = "/followers/{userId}")
+    @GetMapping(path = "/fans/{userId}")
     public Result getFollowers(@PathVariable("userId") int userId, @RequestParam(defaultValue = "1") int currentPage) {
         User user = userService.getUserById(userId);
         if (user == null) {
             //TODO 异常优化
             return Result.fail();
-           /* throw new CustomException(CustomExceptionCode.USER_NOT_EXIST);*/
         }
         Map<String,Object> map = new HashMap<>();
         map.put("user",user);
         // 粉丝数量
-        long followerCount = followService.getFollowerCount(userId);
+        long followerCount = followService.getFansCount(userId);
         map.put("total",followerCount);
         int offset = (currentPage-1)*5;
         //TODO 优化
-        List<Map<String, Object>> userList = followService.getFollowers(userId, offset,5);
+        List<Map<String, Object>> userList = followService.getFans(userId, offset,5);
         if (userList != null) {
             for (Map<String, Object> m : userList) {
                 User u = (User) m.get("user");
@@ -125,9 +127,9 @@ public class FollowController extends BaseController{
 
 
     //查询当前用户是否关注了id为userId的用户
-    private boolean hasFollowed(int userId) {
+    private int hasFollowed(int userId) {
         if (!isLogin()) {
-            return false;
+            return 0;
         }
         return followService.hasFollowed(getUserId(), userId);
     }

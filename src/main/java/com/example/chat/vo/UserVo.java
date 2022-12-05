@@ -9,7 +9,13 @@ public class UserVo {
 
     private Integer id;
 
-    private String username;
+    private String account;
+
+    private String nickname;
+
+    private Integer type;
+
+    private String email;
 
     private Integer sex;
 

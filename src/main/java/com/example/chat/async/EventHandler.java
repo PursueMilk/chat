@@ -28,6 +28,7 @@ public class EventHandler {
     private static Set<String> emailTopics = new HashSet<>();
 
     static {
+        //TODO 优化线程池，添加现场数量+rabbitmq
         executorService = Executors.newFixedThreadPool(4);
         //发送邮件的任务
         emailTopics.add(ConstantUtil.TOPIC_REGISTER);

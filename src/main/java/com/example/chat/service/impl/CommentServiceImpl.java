@@ -38,14 +38,10 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.findCommentById(entityId);
     }
 
+    //TODO 判断不为空
     @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.REQUIRED)
     @Override
     public int addComment(Comment comment) {
-/*
-        if (comment == null){
-            throw new CustomException(CustomExceptionCode.COMMENT_ERROR);
-        }
-*/
         int rows = commentMapper.insertComment(comment);
         if (comment.getEntityType() == ConstantUtil.ENTITY_TYPE_POST){
             int count = commentMapper.selectCountByEntity(comment.getEntityType(),comment.getEntityId());
@@ -54,8 +50,4 @@ public class CommentServiceImpl implements CommentService {
         return rows;
     }
 
-/*    @Override
-    public String findCommentByIdAndType(int entityType, int entityId) {
-        return commentMapper.findCommentByIdAndType(entityType,entityId);
-    }*/
 }

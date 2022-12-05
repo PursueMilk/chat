@@ -6,6 +6,9 @@ import com.example.chat.pojo.Result;
 import com.example.chat.pojo.User;
 import com.example.chat.service.CollectService;
 import com.example.chat.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Api(tags = "收藏接口")
 @RestController
 public class CollectController extends BaseController {
 
@@ -21,30 +25,26 @@ public class CollectController extends BaseController {
     @Autowired
     private CollectService collectService;
 
-    /**
-     * 收藏
-     *
-     * @param collectDto
-     * @return
-     */
+    @ApiOperation(value = "收藏文章")
     @PostMapping("/collect")
     public Result collect(@RequestBody CollectDto collectDto) {
+        redisUtil.increaseScore(collectDto.getEntityId(),15);
         return collectService.collect(getUserId(), collectDto.getEntityId());
     }
 
+
+    @ApiOperation(value = "取消收藏")
     @PostMapping("/uncollect")
     public Result uncollect(@RequestBody CollectDto collectDto) {
+        redisUtil.increaseScore(collectDto.getEntityId(),-15);
         return collectService.unCollect(getUserId(), collectDto.getEntityId());
     }
 
-    /**
-     * 查询用户收藏的文章
-     * @param uid
-     * @return
-     */
+    @ApiOperation(value = "查询用户收藏的文章")
     @TokenPass
     @GetMapping("/collection/{uid}")
-    public Result postCollection(@PathVariable("uid") int uid, @RequestParam(defaultValue = "1") int currentPage) {
+    public Result postCollection(@ApiParam(name = "uid", value = "用户编号") @PathVariable("uid") int uid,
+                                 @ApiParam(name = "currentPage", value = "用户当前页") @RequestParam(defaultValue = "1") int currentPage) {
         User user = userService.getUserById(uid);
         if (user == null) {
             throw new RuntimeException("该用户不存在!");

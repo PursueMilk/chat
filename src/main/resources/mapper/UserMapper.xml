@@ -2,48 +2,63 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.chat.mapper.UserMapper">
 
-    <select id="queryUser" resultType="com.example.chat.pojo.User">
+    <select id="queryUserByAccount" resultType="com.example.chat.pojo.User">
         select id,
-               username,
+               account,
                passwd,
                email,
                sex,
                create_time,
                avatar,
-               state
+               state,
+               nickname,
+               type
         from user
-        where username = #{username}
+        where account = #{account}
+          and state!=2
     </select>
+
+
+    <select id="queryUserCountByEmail" resultType="int">
+        select count(id)
+        from user
+        where email = #{email}
+          and state!=2
+    </select>
+
+
+    <update id="updateImg">
+        update user
+        set avatar=#{avatar}
+        where id = #{id}
+          and state!=2
+    </update>
 
 
     <select id="queryUserById" resultType="User">
         select id,
-               username,
+               account,
                email,
                sex,
                create_time,
-               avatar
+               avatar,
+               nickname,
+               type
         from user
-        where id=#{id}
+        where id = #{id}
+          and state!=2
     </select>
-
 
     <insert id="insertUser">
-        insert into user(username, email, sex, avatar, passwd)
-        values (#{username}, #{email}, #{sex}, #{avatar}, #{passwd})
+        insert into user(account, email, sex, avatar, passwd, type, nickname)
+        values (#{account}, #{email}, #{sex}, #{avatar}, #{passwd}, #{type}, #{nickname})
     </insert>
 
-
-    <select id="queryEmail" resultType="User">
-        select id
-        from user
-        where email = #{email}
-    </select>
 
     <update id="updateState">
         update user
         set state=1
-        where username = #{username}
+        where account = #{account}
     </update>
 
 
@@ -59,18 +74,40 @@
             <if test="passwd!=null and passwd!=''">
                 passwd=#{passwd},
             </if>
+            <if test="nickname!='' and nickname!=null">
+                nickname=#{nickname},
+            </if>
             id=#{id}
         </set>
         where id=#{id}
     </update>
 
-    <update id="updateImg">
-        update user
-        set avatar=#{avatar}
-        where id = #{id}
-    </update>
+
+    <select id="queryUserPasswdById" resultType="User">
+        select id, passwd
+        from user
+        where id = #{userId}
+    </select>
+
+    <sql id="selectFields">
+        id, account,nickname , avatar
+    </sql>
+
+
+    <select id="queryUserByIds" resultType="User">
+        select <include refid="selectFields"></include> from user
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
 
     <select id="queryUserByEmail" resultType="User">
-        select id,username,email from user where email = #{email}
+        select id,email,account
+        from user
+        where email = #{email}
+          and state!=2
     </select>
 </mapper>

@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 public interface CollectService {
-    long getPostCollectCount(int id);
 
-    int getPostCollectStatus(int userId, int pid);
 
     Result collect(int userId, int entityId);
 
     Result unCollect(int userId, int entityId);
+
+    long getPostCollectCount(int id);
+
+    int getPostCollectStatus(int userId, int pid);
 
     long getUserCollectCount(int uid);
 

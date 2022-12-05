@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import static com.example.chat.utils.RedisKeyUtil.PREFIX_USER_CODE;
+import static com.example.chat.utils.RedisKeyUtil.*;
 
 
 /**
@@ -49,32 +48,30 @@ public class EmailTask implements Runnable {
         User user = (User) data.get("user");
         String code = RandomUtil.randomString(6);
         try {
-            mailUtil.mailRegister(from, user.getEmail(), code, user.getUsername());
+            mailUtil.mailRegister(from, user.getEmail(), code, user.getAccount());
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-        redisUtil.setCode(PREFIX_USER_CODE + user.getUsername(), code);
+        redisUtil.setCode(getUserCodeKey(user.getAccount()), code);
     }
 
-    /**
-     * TODO 忘记密码
-     */
-/*    private void forget() {
+
+    private void forget() {
         Map<String, Object> data = event.getData();
-        User user = (User)data.get("user");
-        //发送邮件
+        User user = (User) data.get("user");
         try {
-            mailUtil.forgetMail(user.getEmail(),"忘记密码",user);
+            mailUtil.mailUpdatePasswd(from, user.getEmail(), user.getPasswd(), user.getAccount());
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-    }*/
+    }
+
     @Override
     public void run() {
         if (ConstantUtil.TOPIC_REGISTER.equals(event.getTopic())) {
             register();
         } else if (ConstantUtil.TOPIC_FORGET.equals(event.getTopic())) {
-            /*           forget();*/
+            forget();
         }
     }
 }

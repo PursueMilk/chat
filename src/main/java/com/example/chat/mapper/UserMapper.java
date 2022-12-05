@@ -6,23 +6,27 @@ import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
-    User queryUser(User user);
+    User queryUserByAccount(String account);
+
+    int queryUserCountByEmail(String email);
 
     Integer insertUser(User user);
 
-    User queryEmail(String email);
-
-
-    Integer updateState(String username);
+    Integer updateState(String account);
 
     Integer updateUser(User user);
 
+    User queryUserById(Integer id);
+
     Integer updateImg(Integer id,String avatar);
 
+    User queryUserPasswdById(Integer userId);
 
-    User queryUserById(Integer id);
+    List<User> queryUserByIds(List<Integer> ids);
 
     User queryUserByEmail(String email);
 }

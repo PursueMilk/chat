@@ -1,7 +1,7 @@
 package com.example.chat.service;
 
 public interface LikeService {
-    Long getPostLikeCount(Integer postId);
+    long getPostLikeCount(int postId);
 
     int getPostLikeStatus(int userId, int pid);
 

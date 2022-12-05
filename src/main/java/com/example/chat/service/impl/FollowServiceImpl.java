@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.example.chat.utils.RedisKeyUtil.PREFIX_USER_FOLLOW;
-import static com.example.chat.utils.RedisKeyUtil.PREFIX_USER_FOLLOWED;
+import static com.example.chat.utils.RedisKeyUtil.*;
 
 @Service
 public class FollowServiceImpl implements FollowService {
@@ -29,60 +28,68 @@ public class FollowServiceImpl implements FollowService {
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
-                String followeeKey = PREFIX_USER_FOLLOW + userId;
-                String followedKey = PREFIX_USER_FOLLOWED + entityId;
+                String followeeKey = getUserFollow(userId);
+                String fansKey = getUserFans(entityId);
                 //开启事务
                 operations.multi();
                 //往用户的关注集合中添加被关注人的id
                 operations.opsForZSet().add(followeeKey, entityId, System.currentTimeMillis());
                 //往被关注人的粉丝集合中添加粉丝id
-                operations.opsForZSet().add(followedKey, userId, System.currentTimeMillis());
+                operations.opsForZSet().add(fansKey, userId, System.currentTimeMillis());
                 //执行事务
                 return operations.exec();
             }
         });
     }
 
-    @Override
-    public long getFollowerCount(int entityId) {
-        String followerKey = PREFIX_USER_FOLLOWED + entityId;
-        return redisTemplate.opsForZSet().zCard(followerKey);
-    }
 
     @Override
     public void unfollow(Integer id, int entityId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
-                String followeeKey = PREFIX_USER_FOLLOW + id;
-                String followedKey = PREFIX_USER_FOLLOWED + entityId;
+                String followeeKey = getUserFollow(id);
+                String fansKey = getUserFans(entityId);
                 //开启事务
                 operations.multi();
                 operations.opsForZSet().remove(followeeKey, entityId);
-                operations.opsForZSet().remove(followedKey, id);
+                operations.opsForZSet().remove(fansKey, id);
                 return operations.exec();
             }
         });
     }
 
-    @Override
-    public long getFolloweeCount(int userId) {
-        String followerKey = PREFIX_USER_FOLLOW + userId;
-        return redisTemplate.opsForZSet().zCard(followerKey);
-    }
 
     @Override
-    public boolean hasFollowed(int userId, int entityId) {
-        String followeeKey = PREFIX_USER_FOLLOW + userId;
-        return redisTemplate.opsForZSet().score(followeeKey, entityId) != null;
+    public long getFansCount(int entityId) {
+        String fansKey = getUserFans(entityId);
+        Long fansCount = redisTemplate.opsForZSet().zCard(fansKey);
+        return Objects.isNull(fansCount) ? 0 : fansCount.longValue();
+    }
+
+
+    //关注数量
+    @Override
+    public long getFolloweeCount(int userId) {
+        String followerKey = getUserFollow(userId);
+        Long followCount = redisTemplate.opsForZSet().zCard(followerKey);
+        return Objects.isNull(followCount) ? 0 : followCount.intValue();
+    }
+
+
+    //是否关注
+    @Override
+    public int hasFollowed(int userId, int entityId) {
+        String followeeKey = getUserFollow(userId);
+        return Objects.isNull(redisTemplate.opsForZSet().score(followeeKey, entityId)) ? 0 : 1;
     }
 
     @Override
     public List<Map<String, Object>> getFollowees(int userId, int offset, int limit) {
-        String followeeKey = PREFIX_USER_FOLLOW + userId;
+        String followeeKey = getUserFollow(userId);
         Set<Integer> targetIds = redisTemplate.opsForZSet()
                 .reverseRange(followeeKey, offset, offset + limit - 1);
-        if (targetIds == null) {
+        if (Objects.isNull(targetIds)) {
             return null;
         }
         List<Map<String, Object>> list = new ArrayList<>();
@@ -98,13 +105,13 @@ public class FollowServiceImpl implements FollowService {
         return list;
     }
 
-    //TODO 优化
+
     @Override
-    public List<Map<String, Object>> getFollowers(int userId, int offset, int limit) {
-        String followerKey = PREFIX_USER_FOLLOWED + userId;
+    public List<Map<String, Object>> getFans(int userId, int offset, int limit) {
+        String followerKey = getUserFans(userId);
         Set<Integer> targetIds = redisTemplate.opsForZSet()
                 .reverseRange(followerKey, offset, offset + limit - 1);
-        if (targetIds == null) {
+        if (Objects.isNull(targetIds)) {
             return null;
         }
         List<Map<String, Object>> list = new ArrayList<>();

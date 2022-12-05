@@ -8,18 +8,21 @@ import com.example.chat.pojo.Result;
 import com.example.chat.pojo.User;
 import com.example.chat.service.LikeService;
 import com.example.chat.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.example.chat.utils.ConstantUtil.ENTITY_TYPE_POST;
 import static com.example.chat.utils.ConstantUtil.TOPIC_LIKE;
 import static com.example.chat.utils.RedisKeyUtil.*;
 
-
+@Api(tags = "点赞接口")
 @RestController
 public class LikeController extends BaseController {
 
@@ -33,20 +36,14 @@ public class LikeController extends BaseController {
     private EventHandler eventHandler;
 
 
-    /**
-     * 点赞或取消点赞
-     *
-     * @param likeDto
-     * @return
-     */
-    @RequestMapping(path = "/like", method = RequestMethod.POST)
-    @ResponseBody
+    @ApiOperation(value = "点赞接口")
+    @PostMapping("/like")
     public Result like(@RequestBody LikeDto likeDto) {
         int userId = getUserId();
         User user = userService.getUserById(userId);
         // 点赞
-        String preKey=likeDto.getEntityType()==ENTITY_TYPE_POST?PREFIX_COMMENT_LIKE:PREFIX_POST_LIKE;
-        likeService.like(user.getId(),preKey, likeDto.getEntityId(), likeDto.getEntityUserId());
+        String preKey = likeDto.getEntityType() == ENTITY_TYPE_POST ? PREFIX_POST_LIKE : PREFIX_COMMENT_LIKE;
+        likeService.like(user.getId(), preKey, likeDto.getEntityId(), likeDto.getEntityUserId());
         long likeCount = 0;
         int likeStatus = 0;
         // 数量
@@ -75,10 +72,11 @@ public class LikeController extends BaseController {
             eventHandler.handleTask(event);
         }
         //点赞的是帖子
-        if (likeDto.getEntityType() == ENTITY_TYPE_POST) {
-            // 计算帖子分数
-            Double num = redisTemplate.opsForZSet().score(PREDIX_POST_SCORE, likeDto.getPostId());
-            redisTemplate.opsForZSet().add(PREDIX_POST_SCORE, likeDto.getPostId(), num + 5);
+        if (likeDto.getEntityType() == ENTITY_TYPE_POST && likeStatus == 1) {
+            // 增加帖子分数
+            redisUtil.increaseScore(likeDto.getPostId(), 5);
+        } else if (likeDto.getEntityType() == ENTITY_TYPE_POST && likeStatus == 0) {
+            redisUtil.increaseScore(likeDto.getPostId(), -5);
         }
         return Result.success().setData(map);
     }

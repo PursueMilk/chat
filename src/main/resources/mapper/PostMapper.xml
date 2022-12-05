@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.chat.mapper.PostMapper">
     <insert id="insertPost" useGeneratedKeys="true" keyProperty="id">
-        insert into post(user_id, title, conent, type, tag)
+        insert into post(user_id, title, content, type, tag)
         values (#{userId}, #{title}, #{content}, #{type}, #{tag})
     </insert>
 
@@ -26,7 +26,34 @@
 
     <update id="updateCommentCount">
         update post
-        set comment_count = #{commentCount}
-        where id = #{id}
+        set comment_count = #{count}
+        where id = #{entityId}
     </update>
+
+    <select id="queryPostByIds" resultType="Post">
+        select *
+        from post
+        where status != 2 and id in
+        <foreach collection="set" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by field(id,
+        <foreach collection="set" item="id" separator=","  close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="searchPost" resultType="Post">
+        select *
+        from post
+        where status != 2 and (content like #{message}  or title like #{message})
+        order by type desc, create_time desc limit #{offset}, 5
+    </select>
+
+
+    <select id="countSearchPost" resultType="int">
+        select count(id)
+        from post
+        where status != 2 and (content like #{message}  or title like #{message})
+    </select>
 </mapper>

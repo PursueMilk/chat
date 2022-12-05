@@ -6,11 +6,14 @@ import com.example.chat.pojo.Post;
 import com.example.chat.pojo.Result;
 import com.example.chat.service.*;
 import com.example.chat.vo.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
+@Api(tags = "文章接口")
 @RestController
 @RequestMapping("/post")
 public class PostController extends BaseController {
@@ -18,19 +21,15 @@ public class PostController extends BaseController {
     @Autowired
     private PostService postService;
 
+    @ApiOperation(value = "发表文章")
     @PostMapping("/publish")
     public Result publish(@RequestBody Post post) {
-        Integer id = getUserId();
-        return postService.publish(post, id);
+        post.setUserId(getUserId());
+        return postService.publish(post);
     }
 
 
-    /**
-     * 分页展示推文
-     * listMode代表是最热还是最热
-     *
-     * @return
-     */
+    @ApiOperation(value = "首页文章列表")
     @TokenPass
     @GetMapping("/list")
     public Result posts(@RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "0") int listMode) {
@@ -39,12 +38,7 @@ public class PostController extends BaseController {
     }
 
 
-    /**
-     * 帖子详情
-     *
-     * @param pid
-     * @return
-     */
+    @ApiOperation(value = "文章详情")
     @TokenPass
     @GetMapping("/detail/{pid}")
     public Result postDetail(@PathVariable("pid") int pid) {
@@ -53,12 +47,7 @@ public class PostController extends BaseController {
     }
 
 
-    /**
-     * 查询帖子评论
-     *
-     * @param commentDto
-     * @return
-     */
+    @ApiOperation(value = "评论列表")
     @TokenPass
     @PostMapping("/comment/list")
     public Result CommentList(@RequestBody CommentDto commentDto) {
@@ -66,10 +55,21 @@ public class PostController extends BaseController {
     }
 
 
+    @ApiOperation(value = "上传图片")
     @PostMapping("/uploadImg")
     public Result uploadImg(@RequestPart MultipartFile file) {
         return postService.uploadImg(file);
     }
+
+
+    @TokenPass
+    @ApiOperation("查询信息")
+    @GetMapping("/search")
+    public Result searchPost(@RequestParam("keyword") String message, @RequestParam(defaultValue = "1") int currentPage) {
+        System.out.println(message);
+        return postService.search("%"+message+"%", currentPage);
+    }
+
 
     //TODO 管理员
 
