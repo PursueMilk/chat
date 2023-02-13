@@ -43,6 +43,4 @@ public class User {
     @ApiModelProperty("账号类型")
     private Integer type;
 
-/*    @ApiModelProperty("验证码")
-    private String secode;*/
 }

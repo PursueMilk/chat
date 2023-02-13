@@ -2,7 +2,6 @@ package com.example.chat.service.impl;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.example.chat.service.LikeService;
-import com.example.chat.utils.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
@@ -12,16 +11,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-import static com.example.chat.utils.ConstantUtil.ENTITY_TYPE_POST;
 import static com.example.chat.utils.RedisKeyUtil.*;
 
+/**
+ * 点赞实现
+ */
 @Service
 public class LikeServiceImpl implements LikeService {
 
     @Autowired
     private RedisTemplate redisTemplate;
 
-    //通过redis查询点赞
+    /**
+     * 文章的点赞数量
+     */
     @Override
     public long getPostLikeCount(int postId) {
         String postLikeKey = getPostLike(postId);
@@ -29,14 +32,18 @@ public class LikeServiceImpl implements LikeService {
         return Objects.isNull(likeCount) ? 0 : likeCount.longValue();
     }
 
-    //点赞状态
+    /**
+     * 文章的赞状态
+     */
     @Override
     public int getPostLikeStatus(int userId, int pid) {
         String postLikeKey = getPostLike(pid);
         return BooleanUtil.isTrue(redisTemplate.opsForSet().isMember(postLikeKey, userId)) ? 1 : 0;
     }
 
-    //评论的点赞数量
+    /**
+     * 评论的点赞数量
+     */
     @Override
     public long getCommentLikeCount(int id) {
         String commentLikeKey = getCommentLike(id);
@@ -44,13 +51,18 @@ public class LikeServiceImpl implements LikeService {
         return Objects.isNull(commentCount) ? 0 : commentCount.longValue();
     }
 
-    //点赞状态
+    /**
+     * 评论的点赞状态
+     */
     @Override
     public int getCommentLikeStatus(int userId, int id) {
         String commentLikeKey = getCommentLike(id);
         return BooleanUtil.isTrue(redisTemplate.opsForSet().isMember(commentLikeKey, userId)) ? 1 : 0;
     }
 
+    /**
+     * 点赞和取消点赞
+     */
     @Override
     public void like(Integer userId, String pre, int entityId, int entityUserId) {
         redisTemplate.execute(new SessionCallback() {
@@ -76,6 +88,13 @@ public class LikeServiceImpl implements LikeService {
         });
     }
 
+
+
+
+
+    /**
+     * 用户获得的总点赞数
+     */
     @Override
     public int getUserLikeCount(int userId) {
         String userLikeKey = getUserLikeTotal(userId);

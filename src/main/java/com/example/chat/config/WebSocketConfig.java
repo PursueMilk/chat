@@ -1,6 +1,7 @@
 package com.example.chat.config;
 
 import com.example.chat.chat.ChatEndpoint;
+import com.example.chat.mapper.MessageMapper;
 import com.example.chat.service.MessageService;
 import com.example.chat.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ public class WebSocketConfig {
     }
 
     @Autowired
-    public void setMessageService(MessageService messageService, RedisUtil redisUtil) {
-        ChatEndpoint.messageService = messageService;
+    public void setMessageService(MessageMapper messageMapper, RedisUtil redisUtil) {
+        ChatEndpoint.messageMapper = messageMapper;
         ChatEndpoint.redisUtil = redisUtil;
     }
 }

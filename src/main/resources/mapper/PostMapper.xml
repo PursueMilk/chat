@@ -21,7 +21,7 @@
     <select id="queryPostById" resultType="Post">
         select *
         from post
-        where id = #{id}
+        where id = #{id} and status!=2
     </select>
 
     <update id="updateCommentCount">

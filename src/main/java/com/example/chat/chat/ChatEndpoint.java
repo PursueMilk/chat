@@ -3,14 +3,13 @@ package com.example.chat.chat;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.example.chat.dto.MessageDto;
+import com.example.chat.mapper.MessageMapper;
 import com.example.chat.pojo.Message;
 import com.example.chat.service.MessageService;
 import com.example.chat.utils.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 
 import javax.websocket.*;
@@ -24,6 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.example.chat.utils.RedisKeyUtil.getUserTokenKey;
 
+
+/**
+ * 论坛成员私信实现
+ */
 @ServerEndpoint("/chat/{token}")
 @Component
 @Slf4j
@@ -33,7 +36,7 @@ public class ChatEndpoint {
     //用来存储每一个客户端对象对应的ChatEndpoint对象
     private static Map<String, ChatEndpoint> onlineUsers = new ConcurrentHashMap<>();
 
-    public static MessageService messageService;
+    public static MessageMapper messageMapper;
 
     public static RedisUtil redisUtil;
 
@@ -47,9 +50,9 @@ public class ChatEndpoint {
     //连接建立成功调用
     public void onOpen(@PathParam("token") String token, Session session) throws IOException {
         System.out.println(token);
-        String tokenKey=getUserTokenKey(token);
+        String tokenKey = getUserTokenKey(token);
         Boolean exist = redisUtil.existKey(tokenKey);
-        if (BooleanUtil.isFalse(exist)){
+        if (BooleanUtil.isFalse(exist)) {
             return;
         }
         //需要通知其他的客户端，将所有的用户的用户名发送给客户端
@@ -105,7 +108,7 @@ public class ChatEndpoint {
             dbMessage.setCreateTime(messageDto.getCreateTime());
             dbMessage.setContent(messageDto.getContent());
             //录入到数据库
-            messageService.addMessage(dbMessage);
+            messageMapper.insertMessage(dbMessage);
             ChatEndpoint chatEndpoint = onlineUsers.get(messageDto.getToId());
             log.info("{}", chatEndpoint);
             //对方不在线
@@ -121,10 +124,10 @@ public class ChatEndpoint {
 
     @OnClose
     //连接关闭时调用
-    public void onClose(Session session) {
+    public void onClose() {
         //移除连接对象
         onlineUsers.remove(userId);
-        System.out.println(userId + " 退出连接啦~~~ ");
-        System.out.println("在线总人数： " + onlineUsers.size());
+        log.info("{} 退出连接啦~~~ ", userId);
+        log.info("在线总人数： {}", onlineUsers.size());
     }
 }

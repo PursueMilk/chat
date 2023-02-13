@@ -1,7 +1,7 @@
 package com.example.chat.controller;
 
 
-import com.example.chat.async.EventHandler;
+import com.example.chat.async.RabbitProduce;
 import com.example.chat.pojo.Comment;
 import com.example.chat.pojo.Event;
 import com.example.chat.pojo.Post;
@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.Objects;
 
 import static com.example.chat.utils.ConstantUtil.*;
-import static com.example.chat.utils.RedisKeyUtil.PREDIX_POST_SCORE;
 
 
 @Api(tags = "评论接口")
@@ -35,7 +33,7 @@ public class CommentController extends BaseController {
     private PostService postService;
 
     @Autowired
-    private EventHandler eventHandler;
+    private RabbitProduce rabbitProduce;
 
 
     @ApiOperation(value = "添加评论")
@@ -57,13 +55,12 @@ public class CommentController extends BaseController {
         if (comment.getEntityType() == ENTITY_TYPE_POST) { //评论帖子
             Post target = postService.getPostById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
-            redisUtil.increaseScore(comment.getEntityId(), 10);
+            redisUtil.insertChange(comment.getEntityId());
         } else if (comment.getEntityType() == ENTITY_TYPE_COMMENT) { //评论的对象也是评论
             Comment target = commentService.getCommentById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
         }
-        eventHandler.handleTask(event);
-        redisUtil.increaseScore(comment.getPostId(), 10);
+        rabbitProduce.handleTask(event);
         return Result.success();
     }
 

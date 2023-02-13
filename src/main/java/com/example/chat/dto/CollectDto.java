@@ -12,6 +12,6 @@ public class CollectDto {
     @ApiModelProperty("被收藏的文章ID")
     private int entityId;
 
-/*    @ApiModelProperty("被收藏的文章作者的ID")
-    private int entityUserId;*/
+    @ApiModelProperty("被收藏的文章作者的ID")
+    private int entityUserId;
 }

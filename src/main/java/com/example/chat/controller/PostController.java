@@ -4,22 +4,43 @@ import com.example.chat.annotion.TokenPass;
 import com.example.chat.dto.CommentDto;
 import com.example.chat.pojo.Post;
 import com.example.chat.pojo.Result;
-import com.example.chat.service.*;
-import com.example.chat.vo.*;
+import com.example.chat.pojo.SearchResult;
+import com.example.chat.service.ElasticSearchService;
+import com.example.chat.service.LikeService;
+import com.example.chat.service.PostService;
+import com.example.chat.service.UserService;
+import com.example.chat.vo.PaginationVo;
+import com.example.chat.vo.PostVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Api(tags = "文章接口")
+@Slf4j
 @RestController
 @RequestMapping("/post")
 public class PostController extends BaseController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private ElasticSearchService elasticSearchService;
 
     @ApiOperation(value = "发表文章")
     @PostMapping("/publish")
@@ -67,10 +88,46 @@ public class PostController extends BaseController {
     @GetMapping("/search")
     public Result searchPost(@RequestParam("keyword") String message, @RequestParam(defaultValue = "1") int currentPage) {
         System.out.println(message);
-        return postService.search("%"+message+"%", currentPage);
+        SearchResult searchResult = null;
+        List<PostVo> postVos = null;
+        try {
+            searchResult = elasticSearchService.searchPost(message, (currentPage - 1) * 5, 5);
+            postVos = new ArrayList<>();
+            List<Post> list = searchResult.getList();
+            if (list != null) {
+                for (Post post : list) {
+                    PostVo vo = new PostVo();
+                    //转化日期格式
+                    String strDateFormat = "yyyy-MM-dd HH:mm:ss";
+                    SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+                    post.setCreateTimeStr(sdf.format(post.getCreateTime()));
+                    // 点赞数目
+                    post.setLikeCount(likeService.getPostLikeCount(post.getId()));
+                    //帖子
+                    vo.setPost(post);
+                    //作者
+                    vo.setUser(userService.getUserById(post.getUserId()));
+                    postVos.add(vo);
+                }
+            }
+        } catch (IOException e) {
+            log.error("系统出错，没有数据：" + e.getMessage());
+        }
+        PaginationVo paginationVo = new PaginationVo<PostVo>();
+        paginationVo.setCurrentPage(currentPage);
+        paginationVo.setTotal(searchResult.getTotal() == 0 ? 0 : (int) searchResult.getTotal());
+        paginationVo.setPageSize(5);
+        paginationVo.setRecords(postVos);
+        System.out.println(paginationVo);
+        return Result.success().setData(paginationVo);
     }
 
 
-    //TODO 管理员
-
+    @TokenPass
+    @ApiOperation("查询信息")
+    @GetMapping("/search2")
+    public Result searchPost2(@RequestParam("keyword") String message, @RequestParam(defaultValue = "1") int currentPage) {
+        System.out.println(message);
+        return postService.search("%" + message + "%", currentPage);
+    }
 }

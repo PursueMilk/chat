@@ -15,19 +15,12 @@ public class ImgUtil {
 
     private static String localUrl;
 
-    private static String httpUrl;
-
     static {
+        //本地文件存储的路径
         localUrl = System.getProperty("user.dir") + File.separator + "img";
-        httpUrl="http://172.30.192.192:";
-/*        try {
-            httpUrl = "http://" + InetAddress.getLocalHost().getHostAddress() + ":";
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }*/
     }
 
-    public static String upload(String port, String content, MultipartFile file) {
+    public static String upload(String url, String content, MultipartFile file) {
         //获取上传文件的真实名称
         String fileName = file.getOriginalFilename();
         log.info("文件名称{}", fileName);
@@ -39,6 +32,7 @@ public class ImgUtil {
         //创建文件夹
         File realFile = new File(fileUrl);
         if (!realFile.exists()) {
+            //创建多级目录
             realFile.mkdirs();
         }
         //指定文件上传的目录
@@ -50,17 +44,27 @@ public class ImgUtil {
             e.printStackTrace();
         }
         //添加图片地址
-        String imgUrl = httpUrl + port + "/img/" + content + "/" + newFile;
+        String imgUrl = url + "/img/" + content + "/" + newFile;
         log.info("生成的文件名{}", realFileName);
         log.info("访问图片地址{}", imgUrl);
         return imgUrl;
     }
 
-    public static String getHttpUrl() {
-        return httpUrl;
+    /**
+     * 进行路径的拼接
+     * @param ip
+     * @param port
+     * @return
+     */
+    public static String getImgUrl(String ip, String port) {
+        return "http://" + ip + ":" + port;
     }
 
 
+    /**
+     * 获取本地的图片存储路径
+     * @return
+     */
     public static String getLocalUrl() {
         return localUrl;
     }

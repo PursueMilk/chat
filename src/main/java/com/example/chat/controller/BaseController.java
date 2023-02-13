@@ -29,6 +29,10 @@ public class BaseController {
         return redisUtil.getUserVo(getUserTokenKey(token));
     }
 
+    /**
+     * 判断用户的登录状态
+     * @return
+     */
     public boolean isLogin() {
         String token = request.getHeader("TOKEN");
         return BooleanUtil.isTrue(redisUtil.existKey(getUserTokenKey(token)));

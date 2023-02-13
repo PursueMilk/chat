@@ -2,6 +2,7 @@ package com.example.chat.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
+import com.example.chat.mapper.PostMapper;
 import com.example.chat.pojo.Post;
 import com.example.chat.pojo.Result;
 import com.example.chat.service.CollectService;
@@ -19,6 +20,9 @@ import java.util.*;
 
 import static com.example.chat.utils.RedisKeyUtil.*;
 
+/**
+ * 文章收藏实现
+ */
 @Service
 public class CollectServiceImpl implements CollectService {
 
@@ -26,19 +30,13 @@ public class CollectServiceImpl implements CollectService {
     private RedisTemplate redisTemplate;
 
     @Autowired
-    private PostService postService;
+    private PostMapper postMapper;
 
-    //TODO 问题
-    public CollectServiceImpl(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     /**
-     * 获得文章的收藏数量
-     *
-     * @param id
-     * @return
+     * 文章的被收藏数量
      */
+    //TODO 收藏时间出现问题
     @Override
     public long getPostCollectCount(int id) {
         String postCollectKey = getPostCollect(id);
@@ -48,12 +46,7 @@ public class CollectServiceImpl implements CollectService {
 
     /**
      * 查询用户是否收藏该文章
-     *
-     * @param userId
-     * @param pid
-     * @return
      */
-    //TODO 测试
     @Override
     public int getPostCollectStatus(int userId, int pid) {
         String userCollectKey = getUserCollect(userId);
@@ -105,7 +98,9 @@ public class CollectServiceImpl implements CollectService {
     }
 
 
-    //查看用户收藏数量
+    /**
+     * 查看用户收藏的文章数量
+     */
     @Override
     public long getUserCollectCount(int uid) {
         String userCollectKey = getUserCollect(uid);
@@ -118,8 +113,7 @@ public class CollectServiceImpl implements CollectService {
     public List<Map<String, Object>> getCollections(int userId, int offset, int limit) {
         String userCollectKey = getUserCollect(userId);
         //获取文章ID
-        Set<Integer> targetIds = redisTemplate
-                .opsForZSet()
+        Set<Integer> targetIds = redisTemplate.opsForZSet()
                 .reverseRange(userCollectKey, offset, offset + limit - 1);
         if (Objects.isNull(targetIds)) {
             return null;
@@ -128,7 +122,7 @@ public class CollectServiceImpl implements CollectService {
         //文章内容+收藏时间
         for (Integer targetId : targetIds) {
             Map<String, Object> map = new HashMap<>();
-            Post post = postService.getPostById(targetId);
+            Post post = postMapper.queryPostById(targetId);
             map.put("post", post);
             Double score = redisTemplate.opsForZSet().score(userCollectKey, targetId);
             //转化日期格式

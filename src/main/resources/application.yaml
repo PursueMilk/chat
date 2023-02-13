@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: chat
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/chat?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: xxx
+    password: xxx
+    type:
+    hikari:
+      #连接测试查询
+      connection-test-query: SELECT 1
+      #连接超时时长 60s=1min
+      connection-timeout: 60000
+      #空闲连接超时时间，默认值600000(10分钟),只有空闲连接数大于最大连接数且空闲时间超过该值，才会被释放
+      idle-timeout: 500000
+      #最大存活时间 540s=9min
+      max-lifetime: 540000
+      #最大连接数量
+      maximum-pool-size: 12
+      #最小空闲连接
+      minimum-idle: 10
+      #连接池名称
+      pool-name: HikariPool
+  redis:
+    host: xxx
+    port: xxx
+    password: xxx
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-wait: 6000ms
+        max-idle: 8
+  servlet:
+    multipart:
+      enabled: true
+      #上传文件总的最大值
+      max-request-size: 100MB
+      #单次上传的文件最大值
+      max-file-size: 10MB
+  mail:
+    #服务地址
+    host: xxx
+    #端口号
+    port: xxx
+    #账号
+    username: xxx
+    #字符集
+    default-encoding: UTF-8
+    #密码
+    password: xxx
+    properties:
+      mail:
+        debug: false
+        smtp:
+          socketFactoryClass: javax.net.ssl.SSLSocketFactory
+  #解决springboot和swagger不适应
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  rabbitmq:
+    host: xxx
+    username: xxx
+    password: xxx
+    port: xxx
+    virtual-host: /
+    listener:
+      simple:
+        retry:
+          #开启重试
+          enabled: true
+          # 最大次数5
+          max-attempts: 5
+          # 每次间隔3s
+          initial-interval: 3000
+
+  elasticsearch:
+    rest:
+      # 是否启用es
+      enable: true
+      host: 127.0.0.1
+      port: 9200
+
+server:
+  port: 8080
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  #驼峰命名
+  configuration:
+    map-underscore-to-camel-case: true
+    #日志输出
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  type-aliases-package: com.example.chat.pojo
+
+img:
+  ip: localhost
+
+

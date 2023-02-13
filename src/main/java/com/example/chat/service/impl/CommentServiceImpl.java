@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
+/**
+ * 文章评论实现
+ */
 @Service
 public class CommentServiceImpl implements CommentService {
 
@@ -23,29 +26,41 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private PostMapper postMapper;
 
+    /**
+     * 获取评论列表
+     */
     @Override
     public List<Comment> getCommentsByEntity(int entityType, int entityId, int offset, int limit) {
-        return commentMapper.selectCommentsByEntity(entityType,entityId,offset,limit);
+        return commentMapper.selectCommentsByEntity(entityType, entityId, offset, limit);
     }
 
+    /**
+     * 获得评论数量
+     */
     @Override
     public int getCommentCount(int entityType, int entityId) {
-        return commentMapper.selectCountByEntity(entityType,entityId);
+        return commentMapper.selectCountByEntity(entityType, entityId);
     }
 
+    /**
+     * 获得评论的id
+     */
     @Override
     public Comment getCommentById(int entityId) {
         return commentMapper.findCommentById(entityId);
     }
 
+    /**
+     * 添加评论
+     */
     //TODO 判断不为空
-    @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.REQUIRED)
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED)
     @Override
     public int addComment(Comment comment) {
         int rows = commentMapper.insertComment(comment);
-        if (comment.getEntityType() == ConstantUtil.ENTITY_TYPE_POST){
-            int count = commentMapper.selectCountByEntity(comment.getEntityType(),comment.getEntityId());
-            postMapper.updateCommentCount(comment.getEntityId(),count);
+        if (comment.getEntityType() == ConstantUtil.ENTITY_TYPE_POST) {
+            int count = commentMapper.selectCountByEntity(comment.getEntityType(), comment.getEntityId());
+            postMapper.updateCommentCount(comment.getEntityId(), count);
         }
         return rows;
     }

@@ -12,7 +12,7 @@ public class RedisKeyUtil {
     public static final String PREFIX_USER_EMAIL = "user:email:";
 
     //获得总赞
-    public static final String PREFIX_USER_LIKE_TOTAL = "user:like:total";
+    public static final String PREFIX_USER_LIKE_TOTAL = "user:like:total:";
 
     //收藏
     public static final String PREFIX_USER_COLLECT = "user:collect:";
@@ -27,9 +27,18 @@ public class RedisKeyUtil {
 
     public static final String PREFIX_POST_COLLECT = "post:collect:";
 
-    public static final String PREDIX_POST_SCORE = "post:score";
+    public static final String POST_SCORE = "post:score";
 
     public static final String PREFIX_COMMENT_LIKE = "comment:like:";
+
+
+    public static final String POST_CHANGE="post:change";
+
+    public static final String PREFIX_POST_CHANGE="post:cache:";
+
+
+    public static final String LOCK_KEY = "lock:";
+
 
 
     public static final String getUserTokenKey(String uuid) {
@@ -40,8 +49,8 @@ public class RedisKeyUtil {
         return PREFIX_USER_CODE + count;
     }
 
-    public static final String getUserEmailKey(String count) {
-        return PREFIX_USER_EMAIL + count;
+    public static final String getUserEmailKey(String email) {
+        return PREFIX_USER_EMAIL + email;
     }
 
     public static final String getUserLikeTotal(int userId) {

@@ -23,7 +23,7 @@ import java.util.Map;
 import static com.example.chat.utils.RedisKeyUtil.getUserTokenKey;
 
 
-@Api(tags = "登录接口")
+@Api(tags = "用户接口")
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -49,7 +49,6 @@ public class UserController extends BaseController {
         return userService.login(user);
     }
 
-    //TODO 修改注册模式
     @ApiOperation(value = "注册接口")
     @TokenPass
     @PostMapping("/register")
@@ -84,7 +83,6 @@ public class UserController extends BaseController {
 
 
     @ApiOperation(value = "修改密码")
-    //登录后修改密码
     @PostMapping("/changePwd")
     public Result updatePasswd(@RequestBody NewPassDto newPassDto) {
         return userService.updatePasswd(getUserId(), newPassDto);
@@ -100,43 +98,12 @@ public class UserController extends BaseController {
         return userService.update(user,token);
     }
 
-    //TODO 限制邮件的发送次数
     @ApiOperation(value = "忘记密码")
     @TokenPass
     @PostMapping("/forgetPwd")
     public Result forgetPwd(@RequestBody User user) {
         return userService.forgetPwd(user.getEmail());
     }
-
-    //TODO 修改验证码
-/*    @ApiOperation(value = "发送验证码")
-    //验证码
-    @TokenPass
-    @GetMapping("/getCode")
-    public void getCode(HttpServletResponse response) {
-        // 随机生成 4 位验证码
-         RandomGenerator randomGenerator = new RandomGenerator("0123456789abcdefghijklmnopqrstuvwxyz", 4);
-        // 定义图片的显示大小
-        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(100, 30, 4, 5);
-        response.setContentType("image/jpeg");
-        response.setHeader("Pragma", "No-cache");
-        try {
-            // 调用父类的 setGenerator() 方法，设置验证码的类型
-                     lineCaptcha.setGenerator(randomGenerator);
-            // 输出到页面
-            lineCaptcha.write(response.getOutputStream());
-            HttpSession session = request.getSession();
-            System.out.println(session);
-            session.setAttribute("code", lineCaptcha.getCode());
-            // 打印日志
-            log.info("生成的验证码:{}", lineCaptcha.getCode());
-            // 关闭流
-            response.getOutputStream().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
-
 
     @ApiOperation(value = "用户主页信息")
     @TokenPass
@@ -149,6 +116,7 @@ public class UserController extends BaseController {
         //用request的token信息来判断是否是访问别人的主页还是自己的主页
         Map<String, Object> map = new HashMap<>();
         boolean isLogin = isLogin();
+        //查询是否为当前账号
         if (isLogin && getUserId().equals(uid)) {
             map.put("isMine", true);
         } else {
@@ -156,6 +124,7 @@ public class UserController extends BaseController {
         }
         // 点赞数量
         long likeCount = likeService.getUserLikeCount(uid);
+        map.put("likeCount", likeCount);
         // 关注数量
         long followeeCount = followService.getFolloweeCount(uid);
         map.put("followeeCount", followeeCount);
@@ -169,7 +138,6 @@ public class UserController extends BaseController {
         }
         map.put("hasFollowed", hasFollowed);
         map.put("user", user);
-        map.put("likeCount", likeCount);
         return Result.success().setData(map);
     }
 
@@ -179,7 +147,6 @@ public class UserController extends BaseController {
     @GetMapping("/userPost/{uid}")
     public Result posts(@ApiParam(name = "uid",value = "用户编号") @PathVariable(name = "uid") int uid,
                         @ApiParam(name = "currentPage",value = "当前页")  @RequestParam(defaultValue = "1") int currentPage) {
-        //TODO 显示文章内容
         PaginationVo<PostVo> pagination = postService.listByUserId(currentPage, uid);
         Map<String, Object> map = new HashMap<>();
         map.put("pagination", pagination);

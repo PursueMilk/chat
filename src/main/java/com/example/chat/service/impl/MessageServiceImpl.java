@@ -9,18 +9,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 系统通知实现
+ */
 @Service
 public class MessageServiceImpl implements MessageService {
 
     @Autowired
     private MessageMapper messageMapper;
 
-
-    @Override
-    public int addMessage(Message message) {
-        System.out.println("执行了添加消息~~~！！！");
-        return messageMapper.insertMessage(message);
-    }
 
     @Override
     public int getConversationCount(int userId) {

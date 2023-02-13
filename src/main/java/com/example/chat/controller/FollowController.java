@@ -1,7 +1,7 @@
 package com.example.chat.controller;
 
 import com.example.chat.annotion.TokenPass;
-import com.example.chat.async.EventHandler;
+import com.example.chat.async.RabbitProduce;
 import com.example.chat.dto.FollowDto;
 import com.example.chat.pojo.Event;
 import com.example.chat.pojo.Result;
@@ -28,7 +28,7 @@ public class FollowController extends BaseController{
     @Autowired
     private UserService userService;
     @Autowired
-    private EventHandler eventHandler;
+    private RabbitProduce rabbitProduce;
 
     @ApiOperation("添加关注")
     @PostMapping(path = "/follow")
@@ -49,7 +49,7 @@ public class FollowController extends BaseController{
                 .setEntityId(entityId)
                 .setEntityUserId(entityId);
         //用线程池去发送事件
-        eventHandler.handleTask(event);
+        rabbitProduce.handleTask(event);
         // 返回粉丝数量
         long followerCount = followService.getFansCount(entityId);
         Map<String,Object> map = new HashMap<>();
@@ -104,7 +104,6 @@ public class FollowController extends BaseController{
     public Result getFollowers(@PathVariable("userId") int userId, @RequestParam(defaultValue = "1") int currentPage) {
         User user = userService.getUserById(userId);
         if (user == null) {
-            //TODO 异常优化
             return Result.fail();
         }
         Map<String,Object> map = new HashMap<>();

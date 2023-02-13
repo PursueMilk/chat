@@ -79,7 +79,7 @@
         FROM (SELECT from_id, create_time
               FROM message
               WHERE to_id = #{userId}
-                and conversation_id != 'like' and conversation_id != 'follow'
+                and conversation_id != 'inform.message.like' and conversation_id != 'inform.message.follow'
               ORDER BY create_time DESC) tmep
     </select>
 
@@ -88,7 +88,7 @@
         FROM (SELECT to_id, create_time
               FROM message
               WHERE from_id = #{userId}
-                AND conversation_id != 'like' and conversation_id != 'follow'
+                AND conversation_id != 'inform.message.like' and conversation_id != 'inform.message.follow'
               ORDER BY create_time DESC) tmep
     </select>
 

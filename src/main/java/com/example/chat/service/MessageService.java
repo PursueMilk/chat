@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface MessageService {
-    int addMessage(Message message);
 
     int getConversationCount(int userId);
 

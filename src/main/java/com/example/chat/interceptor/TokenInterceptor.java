@@ -24,7 +24,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = RedisKeyUtil.getUserTokenKey("TOKEN");
+        String token = RedisKeyUtil.getUserTokenKey(request.getHeader("TOKEN"));
         //携带正确token访问就会刷新过期时间
         log.info("携带的token:{}", token);
         if (BooleanUtil.isTrue(redisUtil.existKey(token))) {

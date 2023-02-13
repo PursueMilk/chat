@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.chat.mapper.ScoreMapper">
+
+    <update id="updatePostScore">
+        update post_score
+        set score=#{score}
+        where id = #{id}
+    </update>
+
+    <select id="findPostScore" resultType="postScore">
+        select *
+        from post_score
+        where id = #{postId}
+    </select>
+
+
+    <insert id="insertPostScore">
+        insert into post_score(id, score)
+        values (#{id}, #{score})
+    </insert>
+
+    <select id="hotList" resultType="postScore">
+        select *
+        from post_score
+        order by score desc;
+    </select>
+</mapper>

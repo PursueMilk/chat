@@ -28,7 +28,6 @@ public class CollectController extends BaseController {
     @ApiOperation(value = "收藏文章")
     @PostMapping("/collect")
     public Result collect(@RequestBody CollectDto collectDto) {
-        redisUtil.increaseScore(collectDto.getEntityId(),15);
         return collectService.collect(getUserId(), collectDto.getEntityId());
     }
 
@@ -36,7 +35,6 @@ public class CollectController extends BaseController {
     @ApiOperation(value = "取消收藏")
     @PostMapping("/uncollect")
     public Result uncollect(@RequestBody CollectDto collectDto) {
-        redisUtil.increaseScore(collectDto.getEntityId(),-15);
         return collectService.unCollect(getUserId(), collectDto.getEntityId());
     }
 

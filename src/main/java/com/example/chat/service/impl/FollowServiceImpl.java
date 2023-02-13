@@ -14,6 +14,9 @@ import java.util.*;
 
 import static com.example.chat.utils.RedisKeyUtil.*;
 
+/**
+ * 用户关注实现
+ */
 @Service
 public class FollowServiceImpl implements FollowService {
 
@@ -23,6 +26,9 @@ public class FollowServiceImpl implements FollowService {
     @Autowired
     private UserService userService;
 
+    /**
+     * 关注
+     */
     @Override
     public void follow(Integer userId, int entityId) {
         redisTemplate.execute(new SessionCallback() {
@@ -43,6 +49,9 @@ public class FollowServiceImpl implements FollowService {
     }
 
 
+    /**
+     * 取消关注
+     */
     @Override
     public void unfollow(Integer id, int entityId) {
         redisTemplate.execute(new SessionCallback() {
@@ -60,6 +69,9 @@ public class FollowServiceImpl implements FollowService {
     }
 
 
+    /**
+     * 获取粉丝数量
+     */
     @Override
     public long getFansCount(int entityId) {
         String fansKey = getUserFans(entityId);
@@ -68,7 +80,9 @@ public class FollowServiceImpl implements FollowService {
     }
 
 
-    //关注数量
+    /**
+     * 关注数量
+     */
     @Override
     public long getFolloweeCount(int userId) {
         String followerKey = getUserFollow(userId);
@@ -77,13 +91,18 @@ public class FollowServiceImpl implements FollowService {
     }
 
 
-    //是否关注
+    /**
+     * 判断是否关注
+     */
     @Override
     public int hasFollowed(int userId, int entityId) {
         String followeeKey = getUserFollow(userId);
         return Objects.isNull(redisTemplate.opsForZSet().score(followeeKey, entityId)) ? 0 : 1;
     }
 
+    /**
+     * 关注列表
+     */
     @Override
     public List<Map<String, Object>> getFollowees(int userId, int offset, int limit) {
         String followeeKey = getUserFollow(userId);
@@ -106,6 +125,9 @@ public class FollowServiceImpl implements FollowService {
     }
 
 
+    /**
+     * 粉丝列表
+     */
     @Override
     public List<Map<String, Object>> getFans(int userId, int offset, int limit) {
         String followerKey = getUserFans(userId);
