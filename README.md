@@ -70,4 +70,4 @@
 
 ## LICENSE
 
-Parody-RPC is under the MIT license. See the [LICENSE](https://github.com/PursueMilk/chat/blob/master/license) file for details.
+chat is under the Apache license. See the [LICENSE](https://github.com/PursueMilk/chat/blob/master/license) file for details.
